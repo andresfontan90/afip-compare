@@ -25,17 +25,17 @@ func SelectExcel() (*ExcelData, error) {
 		return nil, fmt.Errorf("error abriendo excel: %s", err.Error())
 	}
 
-	defer excelFile.Close()
-
 	sheetList := excelFile.GetSheetList()
 
 	// Validate that the Excel file has at least two sheets
 	if len(sheetList) < 2 {
+		excelFile.Close()
 		return nil, fmt.Errorf("el archivo debe contener al menos 2 hojas para poder procesar")
 	}
 
 	// Select the first two sheets
 	if utils.IsEmptyString(sheetList[0]) || utils.IsEmptyString(sheetList[1]) {
+		excelFile.Close()
 		return nil, fmt.Errorf("el archivo Excel debe contener nombres válidos en ambas hojas")
 	}
 

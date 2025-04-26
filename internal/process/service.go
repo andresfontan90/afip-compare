@@ -12,25 +12,6 @@ import (
 	"github.com/andresfontan90/afip-compare/internal/utils"
 )
 
-func LoadColumnNames() {
-	columNames[cuitSheet1] = "cuit"
-	columNames[cuitSheet2] = "cuit"
-	columNames[dateSheet1] = "fecha"
-	columNames[dateSheet2] = "fecha"
-	columNames[puntoSheet1] = "punto"
-	columNames[puntoSheet2] = "punto"
-	columNames[compSheet1] = "comprobante"
-	columNames[compSheet2] = "comprobante"
-	columNames[mountSheet1] = "importe"
-	columNames[mountSheet2] = "importe"
-	columNames[mountNetoSheet1] = "importeNeto"
-	columNames[mountNetoSheet2] = "importeNeto"
-	columNames[taxSheet1] = "impuesto"
-	columNames[taxSheet2] = "impuesto"
-	columNames[sourceSheet1] = "fuente"
-	columNames[sourceSheet2] = "fuente"
-}
-
 func Process() error {
 	LoadColumnNames()
 
@@ -39,10 +20,13 @@ func Process() error {
 		return err
 	}
 
+	defer excelData.FileData.Close()
+
 	fmt.Printf("se cruzarán los datos de la hoja '%s' y la hoja '%s'", excelData.Sheet1, excelData.Sheet2)
 
 	fmt.Println("")
 	fmt.Println("Procesando. Esto puede tardar varios minutos...")
+	fmt.Println("")
 
 	// Read sheet 1
 	fmt.Println("Leyendo hoja 1...")
@@ -118,6 +102,8 @@ func Process() error {
 	notInFile1 := make([]Entity, 0)
 
 	// Compare files
+	fmt.Println("Comparando datos...")
+
 	cuit1 := fileMap1[columNames[cuitSheet1]]
 	cuit2 := fileMap2[columNames[cuitSheet2]]
 
@@ -328,6 +314,25 @@ func Process() error {
 	}
 
 	return nil
+}
+
+func LoadColumnNames() {
+	columNames[cuitSheet1] = "cuit"
+	columNames[cuitSheet2] = "cuit"
+	columNames[dateSheet1] = "fecha"
+	columNames[dateSheet2] = "fecha"
+	columNames[puntoSheet1] = "punto"
+	columNames[puntoSheet2] = "punto"
+	columNames[compSheet1] = "comprobante"
+	columNames[compSheet2] = "comprobante"
+	columNames[mountSheet1] = "importe"
+	columNames[mountSheet2] = "importe"
+	columNames[mountNetoSheet1] = "importeNeto"
+	columNames[mountNetoSheet2] = "importeNeto"
+	columNames[taxSheet1] = "impuesto"
+	columNames[taxSheet2] = "impuesto"
+	columNames[sourceSheet1] = "fuente"
+	columNames[sourceSheet2] = "fuente"
 }
 
 func createOuputFileCSV(data []Entity, fileName string) error {
