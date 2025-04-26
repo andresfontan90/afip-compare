@@ -34,6 +34,8 @@ func main() {
 		switch option {
 		case 1:
 			err := startProcess()
+			fmt.Println("")
+			fmt.Println("")
 			if err != nil {
 				fmt.Println(err.Error())
 			} else {

@@ -11,6 +11,7 @@ import (
 	"github.com/andresfontan90/afip-compare/internal/config"
 	"github.com/andresfontan90/afip-compare/internal/excel"
 	"github.com/andresfontan90/afip-compare/internal/utils"
+	"github.com/schollz/progressbar/v3"
 )
 
 func Process() error {
@@ -26,18 +27,26 @@ func Process() error {
 	fmt.Printf("se cruzarán los datos de la hoja '%s' y la hoja '%s'", excelData.Sheet1, excelData.Sheet2)
 
 	fmt.Println("")
-	fmt.Println("Procesando. Esto puede tardar varios minutos...")
+	fmt.Println("Esto puede tardar varios minutos...")
 	fmt.Println("")
 
 	// Read sheet 1
-	fmt.Println("Leyendo hoja 1...")
+	fmt.Println("Procesando hoja 1...")
 
 	cols1, err := excelData.FileData.GetCols(excelData.Sheet1)
 	if err != nil {
 		return fmt.Errorf("error leyendo la hoja: %s. %s", excelData.Sheet1, err.Error())
 	}
 
+	barCols1 := progressbar.NewOptions(len(cols1),
+		progressbar.OptionSetDescription("Leyendo columnas"),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(30),
+	)
+
 	for _, col := range cols1 {
+		barCols1.Add(1)
+
 		loadColFile(cuitSheet1, col, 1)
 		loadColFile(dateSheet1, col, 1)
 		loadColFile(puntoSheet1, col, 1)
@@ -47,6 +56,8 @@ func Process() error {
 		loadColFile(taxSheet1, col, 1)
 		loadColFile(sourceSheet1, col, 1)
 	}
+
+	barCols1.Finish()
 
 	if len(fileMap1) != 8 {
 		return fmt.Errorf("error en hoja 1. La cantidad de columnas leidas es incorrecta")
@@ -64,14 +75,24 @@ func Process() error {
 	}
 
 	// Read sheet 2
-	fmt.Println("Leyendo hoja 2...")
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("Procesando hoja 2...")
 
 	cols2, err := excelData.FileData.GetCols(excelData.Sheet2)
 	if err != nil {
 		return fmt.Errorf("error leyendo la hoja: %s. %s", excelData.Sheet2, err.Error())
 	}
 
+	barCols2 := progressbar.NewOptions(len(cols2),
+		progressbar.OptionSetDescription("Leyendo columnas"),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(30),
+	)
+
 	for _, col := range cols2 {
+		barCols2.Add(1)
+
 		loadColFile(cuitSheet2, col, 2)
 		loadColFile(dateSheet2, col, 2)
 		loadColFile(puntoSheet2, col, 2)
@@ -81,6 +102,8 @@ func Process() error {
 		loadColFile(taxSheet2, col, 2)
 		loadColFile(sourceSheet2, col, 2)
 	}
+
+	barCols2.Finish()
 
 	if len(fileMap2) != 8 {
 		return fmt.Errorf("error en hoja 2. La cantidad de columnas leidas es incorrecta")
@@ -103,7 +126,9 @@ func Process() error {
 	notInFile1 := make([]Entity, 0)
 
 	// Compare files
-	fmt.Println("Comparando datos...")
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("Cruzando la hoja 1 contra la hoja 2...")
 
 	cuit1 := fileMap1[columNames[cuitSheet1]]
 	cuit2 := fileMap2[columNames[cuitSheet2]]
@@ -129,7 +154,15 @@ func Process() error {
 	source1 := fileMap1[columNames[sourceSheet1]]
 	source2 := fileMap2[columNames[sourceSheet2]]
 
+	barRows1 := progressbar.NewOptions(len(cuit1),
+		progressbar.OptionSetDescription("Comparando"),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(30),
+	)
+
 	for index1, value1 := range cuit1 {
+		barRows1.Add(1)
+
 		value1Formated := utils.NormalizeString(value1)
 		var founded bool
 
@@ -211,7 +244,21 @@ func Process() error {
 		}
 	}
 
+	barRows1.Finish()
+
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("Cruzando la hoja 2 contra la hoja 1...")
+
+	barRows2 := progressbar.NewOptions(len(cuit2),
+		progressbar.OptionSetDescription("Comparando"),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(30),
+	)
+
 	for index2, value2 := range cuit2 {
+		barRows2.Add(1)
+
 		value2Formated := utils.NormalizeString(value2)
 		var founded bool
 
@@ -293,6 +340,8 @@ func Process() error {
 			notInFile1 = append(notInFile1, entity)
 		}
 	}
+
+	barRows2.Finish()
 
 	// Create output files
 	if err := createOuputFileCSV(equalRows, "cruces.csv"); err != nil {
