@@ -10,9 +10,9 @@ import (
 )
 
 func StringToNumber(value string) (float64, error) {
-	value = strings.Replace(value, ",", ".", 1)
+	valueStr := strings.Replace(value, ",", ".", 1)
 
-	valueF, err := decimal.NewFromString(value)
+	valueF, err := decimal.NewFromString(valueStr)
 	if err != nil {
 		return 0, fmt.Errorf("error parseando el importe %s", value)
 	}

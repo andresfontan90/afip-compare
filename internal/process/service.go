@@ -12,45 +12,6 @@ import (
 	"github.com/andresfontan90/afip-compare/internal/utils"
 )
 
-type Entity struct {
-	Cuit   string
-	Date   time.Time
-	Punto  string
-	Comp   string
-	Mount  float64
-	Neto   float64
-	Tax    float64
-	Source string
-}
-
-const (
-	cuitSheet1      = "cuit informante"
-	cuitSheet2      = "cuit emisor"
-	dateSheet1      = "fecha comprobante"
-	dateSheet2      = "fecha emision comprobante"
-	puntoSheet1     = "punto"
-	puntoSheet2     = "punto"
-	compSheet1      = "nro. comprobante"
-	compSheet2      = "cpbte desde"
-	mountSheet1     = "importe total operacion"
-	mountSheet2     = "importe total"
-	mountNetoSheet1 = "importe neto"
-	mountNetoSheet2 = "importe neto"
-	taxSheet1       = "impuesto liquidado"
-	taxSheet2       = "impuesto liquidado"
-	sourceSheet1    = "fuente"
-	sourceSheet2    = "fuente"
-)
-
-var (
-	columNames     = make(map[string]string)
-	fileMap1       = make(map[string][]string)
-	fileMap2       = make(map[string][]string)
-	toleranceMount = 0.10
-	toleranceDate  = 10
-	csvSeparator   = ';'
-)
-
 func LoadColumnNames() {
 	columNames[cuitSheet1] = "cuit"
 	columNames[cuitSheet2] = "cuit"
@@ -81,9 +42,11 @@ func Process() error {
 	fmt.Printf("se cruzarán los datos de la hoja '%s' y la hoja '%s'", excelData.Sheet1, excelData.Sheet2)
 
 	fmt.Println("")
-	fmt.Println("Procesando. Aguarde un momento...")
+	fmt.Println("Procesando. Esto puede tardar varios minutos...")
 
 	// Read sheet 1
+	fmt.Println("Leyendo hoja 1...")
+
 	cols1, err := excelData.FileData.GetCols(excelData.Sheet1)
 	if err != nil {
 		return fmt.Errorf("error leyendo la hoja: %s. %s", excelData.Sheet1, err.Error())
@@ -100,7 +63,24 @@ func Process() error {
 		loadColFile(sourceSheet1, col, 1)
 	}
 
+	if len(fileMap1) != 8 {
+		return fmt.Errorf("error en hoja 1. La cantidad de columnas leidas es incorrecta")
+	}
+
+	if len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[taxSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[dateSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[puntoSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[compSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[mountSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[sourceSheet1]]) ||
+		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[mountNetoSheet1]]) {
+
+		return fmt.Errorf("error en hoja 1. Hay columnas que tienen mas registros que otras")
+	}
+
 	// Read sheet 2
+	fmt.Println("Leyendo hoja 2...")
+
 	cols2, err := excelData.FileData.GetCols(excelData.Sheet2)
 	if err != nil {
 		return fmt.Errorf("error leyendo la hoja: %s. %s", excelData.Sheet2, err.Error())
@@ -117,22 +97,8 @@ func Process() error {
 		loadColFile(sourceSheet2, col, 2)
 	}
 
-	if len(fileMap1) != 8 {
-		return fmt.Errorf("no se pudo leer correctamente la informacion de la hoja 1")
-	}
 	if len(fileMap2) != 8 {
-		return fmt.Errorf("no se pudo leer correctamente la informacion de la hoja 2")
-	}
-
-	if len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[taxSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[dateSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[puntoSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[compSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[mountSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[sourceSheet1]]) ||
-		len(fileMap1[columNames[cuitSheet1]]) != len(fileMap1[columNames[mountNetoSheet1]]) {
-
-		return fmt.Errorf("se encontraron inconsistencias al leer las columnas de la hoja 1")
+		return fmt.Errorf("error en hoja 2. La cantidad de columnas leidas es incorrecta")
 	}
 
 	if len(fileMap2[columNames[cuitSheet2]]) != len(fileMap2[columNames[taxSheet2]]) ||
@@ -143,7 +109,7 @@ func Process() error {
 		len(fileMap2[columNames[cuitSheet2]]) != len(fileMap2[columNames[sourceSheet2]]) ||
 		len(fileMap2[columNames[cuitSheet2]]) != len(fileMap2[columNames[mountNetoSheet2]]) {
 
-		return fmt.Errorf("se encontraron inconsistencias al leer las columnas de la hoja 2")
+		return fmt.Errorf("error en hoja 2. Hay columnas que tienen mas registros que otras")
 	}
 
 	equalRows := make([]Entity, 0)
@@ -400,6 +366,7 @@ func loadColFile(colName string, colList []string, fileNumber int) {
 			}
 		}
 	}
+
 	if len(values) > 0 {
 		if fileNumber == 1 {
 			fileMap1[columNames[colName]] = values

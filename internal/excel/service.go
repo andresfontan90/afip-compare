@@ -2,7 +2,6 @@ package excel
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/andresfontan90/afip-compare/internal/utils"
 	"github.com/sqweek/dialog"
@@ -50,6 +49,7 @@ func SelectExcel() (*ExcelData, error) {
 	return data, nil
 }
 
+/*
 func readExcel(excelFile *excelize.File, sheetName string) error {
 	rows, err := excelFile.GetRows(sheetName)
 	if err != nil {
@@ -101,3 +101,4 @@ func normalizeDecimal(input string) string {
 	// Si ya tiene '.' como decimal, lo dejamos
 	return input
 }
+*/
