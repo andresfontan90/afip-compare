@@ -1,5 +1,0 @@
-{
-    "amount_tolerance": 0.10,
-    "date_tolerance_days": 10,
-    "decimal_separator": "."
-}

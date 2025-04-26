@@ -10,9 +10,9 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 	assert := assert.New(t)
-	t.Run("LoadConfig Error - File does not exist", func(_ *testing.T) {
-		err := config.LoadConfig("invalid-file")
-		assert.ErrorContains(err, "error abriendo config")
+	t.Run("LoadConfig OK - File does not exist", func(_ *testing.T) {
+		err := config.LoadConfig("test-file")
+		assert.NoError(err)
 	})
 
 	t.Run("LoadConfig Error - Parsing file", func(_ *testing.T) {
@@ -31,13 +31,14 @@ func TestLoadConfig(t *testing.T) {
 
 	t.Run("LoadConfig OK", func(_ *testing.T) {
 		// Temporal file
-		tmpFile, err := os.CreateTemp("", "invalid-config-*.json")
+		tmpFile, err := os.CreateTemp("", "temp-config-*.json")
 		assert.NoError(err)
 		defer os.Remove(tmpFile.Name())
 
 		_, err = tmpFile.WriteString(`{
 			"amount_tolerance": 0.10,
 			"date_tolerance_days": 10,
+			"csv_separator": ";",
 			"decimal_separator": "."
 		}`)
 		assert.NoError(err)

@@ -1,0 +1,6 @@
+{
+  "amount_tolerance": 0.1,
+  "date_tolerance_days": 10,
+  "csv_separator": ";",
+  "decimal_separator": "."
+}

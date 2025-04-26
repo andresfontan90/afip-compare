@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/andresfontan90/afip-compare/internal/config"
 	"github.com/andresfontan90/afip-compare/internal/excel"
 	"github.com/andresfontan90/afip-compare/internal/utils"
 )
@@ -171,10 +172,10 @@ func Process() error {
 			if strings.EqualFold(value1Formated, utils.NormalizeString(value2)) &&
 				//strings.EqualFold(utils.NormalizeString(punto1[index1]), utils.NormalizeString(punto2[index2])) &&
 				strings.EqualFold(utils.NormalizeString(comp1[index1]), utils.NormalizeString(comp2[index2])) &&
-				utils.Abs(utils.DateDifference(date1Aux.UTC().Local(), date2Aux.UTC().Local())) <= toleranceDate &&
-				math.Abs(math.Abs(mount1Aux)-math.Abs(mount2Aux)) <= toleranceMount &&
-				//math.Abs(mountNeto1Aux)-math.Abs(mountNeto2Aux) <= toleranceMount &&
-				math.Abs(math.Abs(tax1Aux)-math.Abs(tax2Aux)) <= toleranceMount {
+				utils.Abs(utils.DateDifference(date1Aux.UTC().Local(), date2Aux.UTC().Local())) <= config.AppConfig.DateToleranceDays &&
+				math.Abs(math.Abs(mount1Aux)-math.Abs(mount2Aux)) <= config.AppConfig.AmountTolerance &&
+				//math.Abs(mountNeto1Aux)-math.Abs(mountNeto2Aux) <= config.AppConfig.AmountTolerance &&
+				math.Abs(math.Abs(tax1Aux)-math.Abs(tax2Aux)) <= config.AppConfig.AmountTolerance {
 
 				founded = true
 
@@ -253,10 +254,10 @@ func Process() error {
 			if strings.EqualFold(utils.NormalizeString(value1), value2Formated) &&
 				//strings.EqualFold(utils.NormalizeString(punto1[index1]), utils.NormalizeString(punto2[index2])) &&
 				strings.EqualFold(utils.NormalizeString(comp1[index1]), utils.NormalizeString(comp2[index2])) &&
-				utils.Abs(utils.DateDifference(date1Aux.UTC().Local(), date2Aux.UTC().Local())) <= toleranceDate &&
-				math.Abs(math.Abs(mount1Aux)-math.Abs(mount2Aux)) <= toleranceMount &&
-				//math.Abs(mountNeto1Aux)-math.Abs(mountNeto2Aux) <= toleranceMount &&
-				math.Abs(math.Abs(tax1Aux)-math.Abs(tax2Aux)) <= toleranceMount {
+				utils.Abs(utils.DateDifference(date1Aux.UTC().Local(), date2Aux.UTC().Local())) <= config.AppConfig.DateToleranceDays &&
+				math.Abs(math.Abs(mount1Aux)-math.Abs(mount2Aux)) <= config.AppConfig.AmountTolerance &&
+				//math.Abs(mountNeto1Aux)-math.Abs(mountNeto2Aux) <= config.AppConfig.AmountTolerance &&
+				math.Abs(math.Abs(tax1Aux)-math.Abs(tax2Aux)) <= config.AppConfig.AmountTolerance {
 
 				founded = true
 
@@ -343,7 +344,7 @@ func createOuputFileCSV(data []Entity, fileName string) error {
 	defer csvFile.Close()
 
 	csvwriter := csv.NewWriter(csvFile)
-	csvwriter.Comma = csvSeparator
+	csvwriter.Comma = []rune(config.AppConfig.CsvSeparator)[0]
 
 	headers := []string{"CUIT", "FECHA", "PUNTO", "COMPROBANTE", "IMPORTE", "IMPORTE NETO", "IMPUESTO", "FUENTE"}
 	_ = csvwriter.Write(headers)

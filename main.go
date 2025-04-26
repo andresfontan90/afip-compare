@@ -10,14 +10,10 @@ import (
 	"github.com/andresfontan90/afip-compare/internal/utils"
 )
 
-const (
-	configFileName = "config.json"
-)
-
 func main() {
 	utils.ClearConsole()
 
-	if err := config.LoadConfig(configFileName); err != nil {
+	if err := config.LoadConfig(config.ConfigFileName); err != nil {
 		fmt.Println("Error cargando configuración inicial:", err)
 		os.Exit(1)
 	}

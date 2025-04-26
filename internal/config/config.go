@@ -6,9 +6,14 @@ import (
 	"os"
 )
 
+const (
+	ConfigFileName = "config.json"
+)
+
 type Config struct {
 	AmountTolerance   float64 `json:"amount_tolerance"`
 	DateToleranceDays int     `json:"date_tolerance_days"`
+	CsvSeparator      string  `json:"csv_separator"`
 	DecimalSeparator  string  `json:"decimal_separator"`
 }
 
@@ -17,6 +22,7 @@ var AppConfig Config
 var defaultConfig = Config{
 	AmountTolerance:   0.10,
 	DateToleranceDays: 10,
+	CsvSeparator:      ";",
 	DecimalSeparator:  ".",
 }
 

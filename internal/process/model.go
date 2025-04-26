@@ -33,10 +33,7 @@ const (
 )
 
 var (
-	columNames     = make(map[string]string)
-	fileMap1       = make(map[string][]string)
-	fileMap2       = make(map[string][]string)
-	toleranceMount = 0.10
-	toleranceDate  = 10
-	csvSeparator   = ';'
+	columNames = make(map[string]string)
+	fileMap1   = make(map[string][]string)
+	fileMap2   = make(map[string][]string)
 )

@@ -6,11 +6,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/andresfontan90/afip-compare/internal/config"
 	"github.com/shopspring/decimal"
 )
 
 func StringToNumber(value string) (float64, error) {
-	valueStr := strings.Replace(value, ",", ".", 1)
+	var valueStr string
+
+	if strings.EqualFold(config.AppConfig.DecimalSeparator, ".") {
+		valueStr = strings.Replace(value, ",", ".", 1)
+	}
 
 	valueF, err := decimal.NewFromString(valueStr)
 	if err != nil {
